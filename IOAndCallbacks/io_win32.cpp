@@ -1,3 +1,6 @@
+// Win32 implementation file for IO
+// (C) - csm10495 - MIT License 2019
+
 #ifdef _WIN32
 
 #include "io.h"

@@ -1,3 +1,6 @@
+// Main entry file for IOAndCallbacks.
+// (C) - csm10495 - MIT License 2019
+
 #include "io.h"
 
 #include <iostream>

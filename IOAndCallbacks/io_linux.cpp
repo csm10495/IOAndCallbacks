@@ -1,3 +1,6 @@
+// Linux implementation file for IO
+// (C) - csm10495 - MIT License 2019
+
 #ifdef __linux__
 
 #include "io.h"

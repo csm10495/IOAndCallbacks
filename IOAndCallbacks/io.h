@@ -1,3 +1,6 @@
+// Header file for IO
+// (C) - csm10495 - MIT License 2019
+
 #pragma once
 
 #include <cstdint>
