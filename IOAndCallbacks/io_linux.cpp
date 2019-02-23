@@ -16,10 +16,6 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#include <signal.h>
-
-#define BREAK_HERE raise(SIGINT)
-
 #define DEFAULT_MAX_EVENTS 0xFFFF
 
 inline int io_setup(unsigned nr, aio_context_t *ctxp)
