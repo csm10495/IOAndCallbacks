@@ -30,7 +30,7 @@ inline int io_destroy(aio_context_t ctx)
 
 inline int io_submit(aio_context_t ctx, long nr,  struct iocb **iocbpp)
 {
- 	return syscall(__NR_io_submit, ctx, nr, iocbpp);
+	return syscall(__NR_io_submit, ctx, nr, iocbpp);
 }
 
 inline int io_getevents(aio_context_t ctx, long min_nr, long max_nr,
@@ -111,7 +111,7 @@ IO::IO(std::string path)
 	blockSize = 0;
 	blockCount = 0;
 
-    fd = open(path.c_str(), O_ASYNC | O_DIRECT | O_RDWR);
+	fd = open(path.c_str(), O_ASYNC | O_DIRECT | O_RDWR);
 
 	aioContext = 0; // must be pre-initialized
 	if (io_setup(DEFAULT_MAX_EVENTS, &aioContext) != 0)

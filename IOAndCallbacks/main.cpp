@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#if !TEST_BUILD
+
 int numCallbacks = 0;
 
 void testCallback(IO_CALLBACK_STRUCT* pCbStruct)
@@ -14,6 +16,7 @@ void testCallback(IO_CALLBACK_STRUCT* pCbStruct)
 	std::cout << "==========" << std::endl;
 	numCallbacks += 1;
 }
+
 
 int main()
 {
@@ -52,6 +55,7 @@ int main()
 
 	return EXIT_SUCCESS;
 }
+#endif // !TEST_BUILD
 
 // todo: allow ability to give a pointer to place data in for reads.
 // ... if it is NULL, allocate internally.

@@ -116,10 +116,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="io.h" />
+    <ClInclude Include="switches.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="io_linux.cpp" />
     <ClCompile Include="io_win32.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="tests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

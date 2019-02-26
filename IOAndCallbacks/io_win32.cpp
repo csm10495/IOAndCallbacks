@@ -43,20 +43,14 @@ void overlappedCompletionRoutine(
 bool io(HANDLE handle, uint64_t lba, uint64_t blockCount, uint32_t blockSize, IO_CALLBACK_FUNCTION* callback, IO_OPERATION_ENUM operation, void* xferData)
 {
 	uint64_t offsetBytes = blockSize * lba;
-	if (!SetFilePointerEx(
-		handle,
-		*(LARGE_INTEGER*)&offsetBytes,
-		NULL,
-		FILE_BEGIN
-	))
-	{
-		oserror("Failed to SetFilePointerEx to " + std::to_string(offsetBytes));
-		return false;
-	}
 
 	OVERLAPPED* pOverlapped = new OVERLAPPED();                                // free this third
 	pOverlapped->hEvent = new IO_CALLBACK_STRUCT();                            // free this second
 	auto pCbStruct = (IO_CALLBACK_STRUCT*)pOverlapped->hEvent;
+	
+	pOverlapped->Offset = offsetBytes & 0xFFFFFFFF;
+	pOverlapped->OffsetHigh = offsetBytes >> 32;
+
 	pCbStruct->errorCode = NO_ERROR;
 	pCbStruct->lba = lba;
 	pCbStruct->numBlocksRequested = blockCount;
