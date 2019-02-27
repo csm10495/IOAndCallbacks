@@ -10,11 +10,11 @@
 #include <string>
 #include <unordered_map>
 
-#ifdef _WIN32
+#ifdef IO_WIN32
 #include <Windows.h>
 #endif
 
-#ifdef __linux__
+#ifdef IO_LINUX
 // for aio_context_t
 #include <linux/aio_abi.h>
 #endif
@@ -102,8 +102,14 @@ public:
 	// will ask the OS for the number of blocks once then cache it after
 	uint64_t getBlockCount();
 
+	// Will attempt to get a buffer of the requested size that is aligned to the device's block size
+	void* getAlignedBuffer(size_t size);
+
+	// Will free an allocated-aligned buffer
+	static void freeAlignedBuffer(void* buffer);
+
 private:
-#ifdef _WIN32
+#ifdef IO_WIN32
 	HANDLE handle;
 #else
 	int fd;

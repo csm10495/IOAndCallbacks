@@ -1,11 +1,14 @@
 // Linux implementation file for IO
 // (C) - csm10495 - MIT License 2019
 
-#ifdef __linux__
 
 #include "io.h"
+
+#ifdef IO_LINUX
+
 #include <iostream>
 #include <string>
+#include <stdlib.h>
 #include <string.h>
 
 #include <fcntl.h>
@@ -229,5 +232,18 @@ uint64_t IO::getBlockCount()
 
 	return blockCount;
 }
+
+void* IO::getAlignedBuffer(size_t size)
+{
+	void *data;
+	posix_memalign(&data, getBlockSize(), size);
+	return data;
+}
+
+void IO::freeAlignedBuffer(void* buffer)
+{
+	free(buffer);
+}
+
 
 #endif

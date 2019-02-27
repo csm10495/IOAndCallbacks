@@ -17,23 +17,16 @@ void testCallback(IO_CALLBACK_STRUCT* pCbStruct)
 	numCallbacks += 1;
 }
 
-
 int main()
 {
-#ifdef _WIN32
+#ifdef IO_WIN32
 	std::string path = "\\\\.\\PHYSICALDRIVE3";
-#elif __linux__
+#elif IO_LINUX
 	std::string path = "/dev/nvme0n1";
 #endif
 
 	IO io(path);
-	char *data;
-#ifdef __linux__
-	posix_memalign((void**)&data, 4096, 4096);
-#elif _WIN32
-	data = (char*)malloc(4096);
-#endif
-
+	char *data = (char*)io.getAlignedBuffer(4096);
 
 	for (size_t i = 0; i < 4096; i++)
 	{
@@ -51,7 +44,7 @@ int main()
 		io.poll();
 	}
 
-	free(data);
+	io.freeAlignedBuffer(data);
 
 	return EXIT_SUCCESS;
 }

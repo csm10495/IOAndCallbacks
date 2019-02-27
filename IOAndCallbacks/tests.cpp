@@ -9,27 +9,32 @@
 #include <random>
 #include <thread>
 
+#include <string.h>
+
 #if TEST_BUILD
 
 #ifdef IO_WIN32
 #define TEST_PATH "\\\\.\\PHYSICALDRIVE3"
-#elif IO_LINUX
+#endif
+
+#ifdef IO_LINUX
 #define TEST_PATH "/dev/nvme0n1"
 #endif
 
 #define ASSERT(condition, msg) _assert(condition, msg, __func__ , __LINE__)
+#define RUN_TEST(func) std::cout << "Running: " << #func << "..."; func(); std::cout << " Pass" << std::endl;
 
 void _assert(bool condition, std::string msg, std::string func, unsigned line)
 {
 	if (!condition)
 	{
-		std::cerr << "Assertion failed: " << func << "(" << line << "): " << msg << std::endl;
+		std::cerr << std::endl << "Assertion failed: " << func << "(" << line << "): " << msg << std::endl;
 		assert(condition);
 	}
 }
 
 // Yummy Global Variables
-// Tests run syncronously so this makes the callbacks a bit easier to muster.
+// Tests run synchronously so this makes the callbacks a bit easier to muster.
 uint64_t g_blockSize = 0;
 uint64_t g_blockCount = 0;
 uint64_t g_lba = 0;
@@ -49,9 +54,9 @@ void testCallback(IO_CALLBACK_STRUCT* pCbStruct)
 	g_numCallbacks += 1;
 }
 
-char* getRandomBuffer(size_t size)
+char* getRandomBuffer(size_t size, IO* io)
 {
-	char* buf = new char[size];
+	char* buf = (char*)io->getAlignedBuffer(size);
 	for (size_t i = 0; i < size; i++)
 	{
 		buf[i] = rand() % 0xFF;
@@ -78,7 +83,7 @@ void test_write_then_read()
 
 	g_blockSize = io.getBlockSize();
 	g_blockCount = rand() % 128;
-	g_bufferDataToCompare = getRandomBuffer((size_t)g_blockSize * (size_t)g_blockCount);
+	g_bufferDataToCompare = getRandomBuffer((size_t)g_blockSize * (size_t)g_blockCount, &io);
 	g_lba = rand() % (io.getBlockCount() - g_blockCount);
 
 	auto oldCallbackCount = g_numCallbacks;
@@ -115,10 +120,19 @@ void test_write_then_read()
 
 	ASSERT(i < 1000, "Took more than a second to read");
 
-	delete[]g_bufferDataToCompare;
+	io.freeAlignedBuffer(g_bufferDataToCompare);
 	g_bufferDataToCompare = NULL;
 }
 
+void test_aligned_memory()
+{
+	IO io(TEST_PATH);
+	auto blockSize = io.getBlockSize();
+	void* buffer = io.getAlignedBuffer(1024*128);
+	uint64_t addr = (uint64_t)buffer;
+	ASSERT(addr % blockSize == 0, "Buffer was not aligned");
+	io.freeAlignedBuffer(buffer);
+}
 
 int main()
 {
@@ -127,10 +141,11 @@ int main()
 	std::cout << "Seed: " << seed << std::endl;
 	srand((unsigned)seed);
 
-	test_blocksize_and_blockcount_legit();
-	test_write_then_read();
+	RUN_TEST(test_blocksize_and_blockcount_legit);
+	RUN_TEST(test_write_then_read);
+	RUN_TEST(test_aligned_memory);
 
 	return EXIT_SUCCESS;
 }
 
-#endif TEST_BUILD
+#endif // TEST_BUILD

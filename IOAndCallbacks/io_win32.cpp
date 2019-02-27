@@ -1,10 +1,10 @@
 // Win32 implementation file for IO
 // (C) - csm10495 - MIT License 2019
 
-#ifdef _WIN32
-
 #include "io.h"
 #include <iostream>
+
+#ifdef IO_WIN32
 
 typedef BOOL(WINAPI WIN32_IO_FUNCTION)(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPOVERLAPPED lpOverlapped, LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 
@@ -218,6 +218,16 @@ uint64_t IO::getBlockCount()
 	}
 
 	return blockCount;
+}
+
+void* IO::getAlignedBuffer(size_t size)
+{
+	return _aligned_malloc(size, getBlockSize());
+}
+
+void IO::freeAlignedBuffer(void * buffer)
+{
+	_aligned_free(buffer);
 }
 
 #endif

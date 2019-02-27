@@ -9,9 +9,9 @@
 #endif // TEST_BUILD
 
 #ifdef __linux__
-#define IO_LINUX
+#define IO_LINUX 1
 #endif // __linux__
 
 #ifdef _WIN32
-#define IO_WIN32
+#define IO_WIN32 1
 #endif // _WIN32
