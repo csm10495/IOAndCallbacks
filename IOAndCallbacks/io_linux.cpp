@@ -108,7 +108,7 @@ bool IO::poll()
 		if (pCbStruct->operation == IO_OPERATION_READ)
 		{
 			// if doing a write, the user owns the buffer. Let them free it.
-			free(pCbStruct->xferBuffer);
+			IO::freeAlignedBuffer(pCbStruct->xferBuffer);
 		}
 
 		delete pCbStruct;
