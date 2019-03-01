@@ -135,16 +135,6 @@ IO::~IO()
 	handle = 0;
 }
 
-bool IO::read(uint64_t lba, uint64_t blockCount, IO_CALLBACK_FUNCTION* callback)
-{
-	return io(handle, lba, blockCount, getBlockSize(), callback, IO_OPERATION_READ, NULL, aioContext);
-}
-
-bool IO::write(uint64_t lba, uint64_t blockCount, void* xferData, IO_CALLBACK_FUNCTION* callback)
-{
-	return io(handle, lba, blockCount, getBlockSize(), callback, IO_OPERATION_WRITE, xferData, aioContext);
-}
-
 bool IO::poll()
 {
 	io_event events[DEFAULT_MAX_EVENTS];
@@ -245,5 +235,46 @@ void IO::freeAlignedBuffer(void* buffer)
 	free(buffer);
 }
 
+bool IO::submitIo(IO_CALLBACK_STRUCT* ioCallbackStruct)
+{
+	iocb* io = new iocb;
+	memset(io, 0, sizeof(iocb));
+
+	if (ioCallbackStruct->operation == IO_OPERATION_READ)
+	{
+		io->aio_lio_opcode = IOCB_CMD_PREAD;
+	}
+	else if (ioCallbackStruct->operation == IO_OPERATION_WRITE)
+	{
+		io->aio_lio_opcode = IOCB_CMD_PWRITE;
+	}
+	else
+	{
+		std::cerr << ("Invalid IO Operation: " + std::to_string(ioCallbackStruct->operation)) << std::endl;
+
+		delete io;
+		return false;
+	}
+
+	io->aio_fildes = handle;
+	io->aio_nbytes = ioCallbackStruct->numBytesRequested;
+	io->aio_offset = ioCallbackStruct->lba * getBlockSize();
+	io->aio_buf = (__u64)ioCallbackStruct->xferBuffer;
+
+	// pass our callback via the kernel
+	io->aio_data = (__u64)ioCallbackStruct;
+
+	int ret = io_submit(aioContext, 1, &io);
+	if (ret != 1)
+	{
+		perror("Failed to submit IO");
+		delete io;
+		delete ioCallbackStruct;
+
+		return false;
+	}
+
+	return true;
+}
 
 #endif
