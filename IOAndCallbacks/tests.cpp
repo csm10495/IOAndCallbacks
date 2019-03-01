@@ -39,6 +39,7 @@ uint64_t g_blockSize = 0;
 uint64_t g_blockCount = 0;
 uint64_t g_lba = 0;
 uint64_t g_numCallbacks = 0;
+void* g_userCallbackData = NULL;
 void* g_bufferDataToCompare = NULL;
 
 void testCallback(IO_CALLBACK_STRUCT* pCbStruct)
@@ -51,6 +52,12 @@ void testCallback(IO_CALLBACK_STRUCT* pCbStruct)
 	{
 		ASSERT(memcmp(pCbStruct->xferBuffer, g_bufferDataToCompare, (size_t)g_blockSize * (size_t)g_blockCount) == 0, "g_bufferDataToCompare did not match xferBuffer");
 	}
+
+	if (g_userCallbackData)
+	{
+		ASSERT(g_userCallbackData == pCbStruct->userCallbackData, "g_userCallbackData didn't match the userCallbackData");
+	}
+
 	g_numCallbacks += 1;
 }
 
@@ -87,7 +94,7 @@ void test_write_then_read()
 	g_lba = rand() % (io.getBlockCount() - g_blockCount);
 
 	auto oldCallbackCount = g_numCallbacks;
-	io.write(g_lba, g_blockCount, g_bufferDataToCompare, NULL);
+	io.write(g_lba, g_blockCount, g_bufferDataToCompare, NULL, NULL);
 
 	// give 1 second to complete this io at most
 	size_t i = 0;
@@ -105,7 +112,9 @@ void test_write_then_read()
 	ASSERT(i < 1000, "Took more than a second to write");
 
 	// read back the data;
-	io.read(g_lba, g_blockCount, testCallback);
+	int x = 5;
+	g_userCallbackData = (void*)&x;
+	io.read(g_lba, g_blockCount, testCallback, &x);
 
 	i = 0;
 	for (; i < 1000; i++)
@@ -122,6 +131,7 @@ void test_write_then_read()
 
 	io.freeAlignedBuffer(g_bufferDataToCompare);
 	g_bufferDataToCompare = NULL;
+	g_userCallbackData = NULL;
 }
 
 void test_aligned_memory()

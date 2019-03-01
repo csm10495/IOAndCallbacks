@@ -43,7 +43,8 @@ public:
 	}
 
 	IO_CALLBACK_STRUCT(uint64_t lba, uint64_t blockcount, uint64_t bytesRequested,
-		void* xferBuffer, IO_OPERATION_ENUM operation, IO_CALLBACK_FUNCTION* userCallbackFunction) : IO_CALLBACK_STRUCT()
+		void* xferBuffer, IO_OPERATION_ENUM operation, IO_CALLBACK_FUNCTION* userCallbackFunction,
+		void* userCallbackData) : IO_CALLBACK_STRUCT()
 	{
 		this->lba = lba;
 		this->numBlocksRequested = blockcount;
@@ -51,6 +52,7 @@ public:
 		this->xferBuffer = xferBuffer;
 		this->operation = operation;
 		this->userCallbackFunction = userCallbackFunction;
+		this->userCallbackData = userCallbackData;
 	}
 
 	// set before submitting
@@ -60,6 +62,7 @@ public:
 	void* xferBuffer;
 	IO_OPERATION_ENUM operation;
 	IO_CALLBACK_FUNCTION* userCallbackFunction;
+	void* userCallbackData;
 
 	// set by callback.
 	uint64_t numBytesXferred;
@@ -109,8 +112,8 @@ public:
 	~IO();
 
 	// return true if the command is queued
-	bool read(uint64_t lba, uint64_t blockCount, IO_CALLBACK_FUNCTION* callback);
-	bool write(uint64_t lba, uint64_t blockCount, void* xferData, IO_CALLBACK_FUNCTION* callback);
+	bool read(uint64_t lba, uint64_t blockCount, IO_CALLBACK_FUNCTION* callback, void* userCallbackData);
+	bool write(uint64_t lba, uint64_t blockCount, void* xferData, IO_CALLBACK_FUNCTION* callback, void* userCallbackData);
 	
 	// Will free ioCallbackStruct on fail or in the callback on pass.
 	bool submitIo(IO_CALLBACK_STRUCT* ioCallbackStruct);
