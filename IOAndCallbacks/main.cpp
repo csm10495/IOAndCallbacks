@@ -20,13 +20,13 @@ void testCallback(IO_CALLBACK_STRUCT* pCbStruct)
 int main()
 {
 #ifdef IO_WIN32
-	std::string path = "\\\\.\\PHYSICALDRIVE3";
+	std::string path = "\\\\.\\PHYSICALDRIVE7";
 #elif IO_LINUX
 	std::string path = "/dev/nvme0n1";
 #endif
 
 	IO io(path);
-	char *data = (char*)io.getAlignedBuffer(4096);
+	char *data = (char*)io.getAlignedBuffer(4096*256);
 
 	for (size_t i = 0; i < 4096; i++)
 	{
@@ -38,11 +38,6 @@ int main()
 
 	io.write(0, 8, data, testCallback);
 	io.read(0, 8, testCallback);
-
-	while (numCallbacks < 2)
-	{
-		io.poll();
-	}
 
 	io.freeAlignedBuffer(data);
 

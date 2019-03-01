@@ -114,7 +114,7 @@ IO::IO(std::string path)
 	blockSize = 0;
 	blockCount = 0;
 
-	fd = open(path.c_str(), O_ASYNC | O_DIRECT | O_RDWR);
+	handle = open(path.c_str(), O_ASYNC | O_DIRECT | O_RDWR);
 
 	aioContext = 0; // must be pre-initialized
 	if (io_setup(DEFAULT_MAX_EVENTS, &aioContext) != 0)
@@ -131,18 +131,18 @@ IO::~IO()
 	}
 
 	// finally close the fd;
-	close(fd);
-	fd = 0;
+	close(handle);
+	handle = 0;
 }
 
 bool IO::read(uint64_t lba, uint64_t blockCount, IO_CALLBACK_FUNCTION* callback)
 {
-	return io(fd, lba, blockCount, getBlockSize(), callback, IO_OPERATION_READ, NULL, aioContext);
+	return io(handle, lba, blockCount, getBlockSize(), callback, IO_OPERATION_READ, NULL, aioContext);
 }
 
 bool IO::write(uint64_t lba, uint64_t blockCount, void* xferData, IO_CALLBACK_FUNCTION* callback)
 {
-	return io(fd, lba, blockCount, getBlockSize(), callback, IO_OPERATION_WRITE, xferData, aioContext);
+	return io(handle, lba, blockCount, getBlockSize(), callback, IO_OPERATION_WRITE, xferData, aioContext);
 }
 
 bool IO::poll()
@@ -199,7 +199,7 @@ uint32_t IO::getBlockSize()
 	}
 
 	uint64_t numBytes;
-	if (ioctl(fd, BLKSSZGET, &numBytes) == 0)
+	if (ioctl(handle, BLKSSZGET, &numBytes) == 0)
 	{
 		blockSize = numBytes;
 	}
@@ -221,7 +221,7 @@ uint64_t IO::getBlockCount()
 	}
 
 	uint64_t numBlocks;
-	if (ioctl(fd, BLKGETSIZE, &numBlocks) == 0)
+	if (ioctl(handle, BLKGETSIZE, &numBlocks) == 0)
 	{
 		blockCount = numBlocks;
 	}

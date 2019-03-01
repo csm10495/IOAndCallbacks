@@ -109,10 +109,9 @@ public:
 	static void freeAlignedBuffer(void* buffer);
 
 private:
-#ifdef IO_WIN32
-	HANDLE handle;
-#else
-	int fd;
+	IO_HANDLE handle;
+
+#ifdef IO_LINUX
 	aio_context_t aioContext;
 #endif
 
