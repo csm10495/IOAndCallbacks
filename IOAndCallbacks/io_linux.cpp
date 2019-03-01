@@ -47,68 +47,6 @@ void perror(std::string str)
 	perror(str.c_str());
 }
 
-bool io(int fd, uint64_t lba, uint64_t blockCount, uint32_t blockSize, IO_CALLBACK_FUNCTION* callback,
-	IO_OPERATION_ENUM operation, void* xferData,
-	aio_context_t aioContext)
-{
-	iocb* io = new iocb;
-	memset(io, 0, sizeof(iocb));
-
-	if (operation == IO_OPERATION_READ)
-	{
-		io->aio_lio_opcode = IOCB_CMD_PREAD;
-	}
-	else if (operation == IO_OPERATION_WRITE)
-	{
-		io->aio_lio_opcode = IOCB_CMD_PWRITE;
-	}
-	else
-	{
-		std::cerr << ("Invalid IO Operation: " + std::to_string(operation)) << std::endl;
-
-		delete io;
-		return false;
-	}
-
-	io->aio_fildes = fd;
-	io->aio_nbytes = blockCount * blockSize;
-	io->aio_offset = lba * blockSize;
-
-	if (operation == IO_OPERATION_READ)
-	{
-		io->aio_buf = (__u64)aligned_alloc(blockSize, io->aio_nbytes); // free this first
-	}
-	else
-	{
-		io->aio_buf = (__u64)xferData;
-	}
-
-	// setup our generic callback
-	IO_CALLBACK_STRUCT* callbackStruct = new IO_CALLBACK_STRUCT;
-	callbackStruct->errorCode = 0;
-	callbackStruct->lba = lba;
-	callbackStruct->numBlocksRequested = blockCount;
-	callbackStruct->numBytesRequested = io->aio_nbytes;
-	callbackStruct->xferBuffer = (void*)io->aio_buf;
-	callbackStruct->operation = operation;
-	callbackStruct->userCallbackFunction = callback;
-
-	// pass our callback via the kernel
-	io->aio_data = (__u64)callbackStruct;
-
-	int ret = io_submit(aioContext, 1, &io);
-	if (ret != 1)
-	{
-		perror("Failed to submit IO");
-		delete io;
-		delete callbackStruct;
-
-		return false;
-	}
-
-	return true;
-}
-
 IO::IO(std::string path)
 {
 	blockSize = 0;
