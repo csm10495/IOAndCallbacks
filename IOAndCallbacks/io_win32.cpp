@@ -146,7 +146,7 @@ void IO::freeAlignedBuffer(void * buffer)
 	_aligned_free(buffer);
 }
 
-bool IO::submitIo(IO_CALLBACK_STRUCT* ioCallbackStruct)
+bool IO::doSubmitIo(IO_CALLBACK_STRUCT* ioCallbackStruct)
 {
 	OVERLAPPED* pOverlapped = new OVERLAPPED();                                // free this third
 	pOverlapped->hEvent = ioCallbackStruct;                                    // free this second (allocated upstream)

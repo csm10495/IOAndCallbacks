@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #ifdef IO_WIN32
+#define NOMINMAX
 #include <Windows.h>
 #endif
 
@@ -105,6 +106,34 @@ public:
 	}
 };
 
+#if IO_ENABLE_STATS
+// Used to keep track of some stats about this IO Object
+class IO_STATS_STRUCT
+{
+public:
+	IO_STATS_STRUCT()
+	{
+		clear();
+	}
+
+	void clear()
+	{
+		memset(this, 0, sizeof(IO_STATS_STRUCT));
+	}
+
+	uint64_t NumberOfQueuedReads;
+	uint64_t NumberOfQueuedWrites;
+	uint64_t LargestQueuedReadInSectors;
+	uint64_t LargestQueuedWriteInSectors;
+	uint64_t LowestQueuedReadLba;
+	uint64_t HighestQueuedReadLba;
+	uint64_t LowestQueuedWriteLba;
+	uint64_t HighestQueuedWriteLba;
+	uint64_t NumberOfReadQueueFailures;
+	uint64_t NumberOfWriteQueueFailures;
+};
+#endif
+
 class IO
 {
 public:
@@ -114,8 +143,10 @@ public:
 	// return true if the command is queued
 	bool read(uint64_t lba, uint64_t blockCount, IO_CALLBACK_FUNCTION* callback, void* userCallbackData);
 	bool write(uint64_t lba, uint64_t blockCount, void* xferData, IO_CALLBACK_FUNCTION* callback, void* userCallbackData);
+	inline bool read(uint64_t lba, uint64_t blockCount, IO_CALLBACK_FUNCTION* callback) { return read(lba, blockCount, callback, NULL); }
+	inline bool write(uint64_t lba, uint64_t blockCount, void* xferData, IO_CALLBACK_FUNCTION* callback) { return write(lba, blockCount, xferData, callback, NULL); }
 	
-	// Will free ioCallbackStruct on fail or in the callback on pass.
+	// Will free ioCallbackStruct on fail or in the callback on pass. This function is the same on all OSes
 	bool submitIo(IO_CALLBACK_STRUCT* ioCallbackStruct);
 
 	// returns true if at least one callback is called
@@ -133,7 +164,15 @@ public:
 	// Will free an allocated-aligned buffer
 	static void freeAlignedBuffer(void* buffer);
 
+#if IO_ENABLE_STATS
+	// Returns a struct of stats
+	IO_STATS_STRUCT& getIoStatsStruct();
+#endif // IO_ENABLE_STATS
+
 private:
+
+	// called by submitIo(). This is OS specific.
+	bool doSubmitIo(IO_CALLBACK_STRUCT* ioCallbackStruct);
 
 	IO_HANDLE handle;
 
@@ -143,4 +182,8 @@ private:
 
 	uint32_t blockSize;
 	uint64_t blockCount;
+
+#if IO_ENABLE_STATS
+	IO_STATS_STRUCT ioStatsStruct;
+#endif // IO_ENABLE_STATS
 };

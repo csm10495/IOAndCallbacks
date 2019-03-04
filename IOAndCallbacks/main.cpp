@@ -11,16 +11,16 @@ int numCallbacks = 0;
 
 void testCallback(IO_CALLBACK_STRUCT* pCbStruct)
 {
-	std::cout << "==========" << std::endl;
-	std::cout << pCbStruct->toString() << std::endl;
-	std::cout << "==========" << std::endl;
+	//std::cout << "==========" << std::endl;
+	//std::cout << pCbStruct->toString() << std::endl;
+	//std::cout << "==========" << std::endl;
 	numCallbacks += 1;
 }
 
 int main()
 {
 #ifdef IO_WIN32
-	std::string path = "\\\\.\\PHYSICALDRIVE7";
+	std::string path = "\\\\.\\PHYSICALDRIVE3";
 #elif IO_LINUX
 	std::string path = "/dev/nvme0n1";
 #endif
@@ -36,8 +36,16 @@ int main()
 	std::cout << "Block Size:  " << io.getBlockSize() << std::endl;
 	std::cout << "Block Count: " << io.getBlockCount() << std::endl;
 
-	io.write(0, 8, data, testCallback);
-	io.read(0, 8, testCallback);
+	for (auto i = 0; i < 100000; i++)
+	{
+		io.write(0, 256, data, testCallback, NULL);
+		io.read(0, 16, testCallback, NULL);
+	}
+
+	for (auto i = 0; i < 100; i++)
+	{
+		io.poll();
+	}
 
 	io.freeAlignedBuffer(data);
 

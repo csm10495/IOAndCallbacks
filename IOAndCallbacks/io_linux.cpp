@@ -173,7 +173,7 @@ void IO::freeAlignedBuffer(void* buffer)
 	free(buffer);
 }
 
-bool IO::submitIo(IO_CALLBACK_STRUCT* ioCallbackStruct)
+bool IO::doSubmitIo(IO_CALLBACK_STRUCT* ioCallbackStruct)
 {
 	iocb* io = new iocb;
 	memset(io, 0, sizeof(iocb));

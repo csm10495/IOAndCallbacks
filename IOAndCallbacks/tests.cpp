@@ -14,7 +14,7 @@
 #if TEST_BUILD
 
 #ifdef IO_WIN32
-#define TEST_PATH "\\\\.\\PHYSICALDRIVE7"
+#define TEST_PATH "\\\\.\\PHYSICALDRIVE3"
 #endif
 
 #ifdef IO_LINUX
