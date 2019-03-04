@@ -2,6 +2,7 @@
 // (C) - csm10495 - MIT License 2019
 
 #include "io.h"
+#include "iorand.h"
 
 #include <iostream>
 
@@ -36,7 +37,7 @@ int main()
 	std::cout << "Block Size:  " << io.getBlockSize() << std::endl;
 	std::cout << "Block Count: " << io.getBlockCount() << std::endl;
 
-	for (auto i = 0; i < 100000; i++)
+	for (auto i = 0; i < 100; i++)
 	{
 		io.write(0, 256, data, testCallback, NULL);
 		io.read(0, 16, testCallback, NULL);
@@ -48,7 +49,7 @@ int main()
 	}
 
 	io.freeAlignedBuffer(data);
-
+	
 	return EXIT_SUCCESS;
 }
 #endif // !TEST_BUILD

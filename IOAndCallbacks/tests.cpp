@@ -2,6 +2,7 @@
 // (C) - csm10495 - MIT License 2019
 
 #include "io.h"
+#include "iorand.h"
 
 #include <cassert>
 #include <chrono>
@@ -144,6 +145,32 @@ void test_aligned_memory()
 	io.freeAlignedBuffer(buffer);
 }
 
+void test_iorand()
+{
+	// extra braces are to go in / out of scope to kill threads for generation (for test speed only)
+
+	{
+		IORand i1;
+		IORand i2;
+
+		ASSERT(i1.getRandomNumber<int>() != i2.getRandomNumber<int>(), "Two IORand objects yielded the same random number to start");
+	}
+	
+	{
+		IORand i3(5);
+		IORand i4(5);
+
+		ASSERT(i3.getRandomNumber<uint64_t>() == i4.getRandomNumber<uint64_t>(), "Same seed did not generate the same numbers");
+	}
+
+	{
+		IORand i5(7);
+		IORand i6(11);
+		ASSERT(i5.getRandomNumber<uint64_t>() != i6.getRandomNumber<uint64_t>(), "Different seeds got the same number");
+	}
+
+}
+
 int main()
 {
 	std::cout << "Running tests!" << std::endl;
@@ -154,6 +181,7 @@ int main()
 	RUN_TEST(test_blocksize_and_blockcount_legit);
 	RUN_TEST(test_write_then_read);
 	RUN_TEST(test_aligned_memory);
+	RUN_TEST(test_iorand);
 
 	return EXIT_SUCCESS;
 }

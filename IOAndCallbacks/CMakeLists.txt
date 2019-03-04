@@ -8,5 +8,9 @@ add_executable(tests ${SRC_FILES})
 target_compile_definitions(tests PRIVATE TEST_BUILD=1)
 
 if (UNIX)
-target_link_libraries(ioandcallbacks rt)
+	target_link_libraries(ioandcallbacks rt)
+
+	# for pthread
+	SET(CMAKE_CXX_FLAGS -pthread)
+	target_link_libraries(ioandcallbacks pthread)
 endif()
