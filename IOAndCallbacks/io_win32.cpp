@@ -13,7 +13,7 @@ void oserror(std::string s)
 	std::cerr << s << ": OS Error: " << GetLastError() << std::endl;
 }
 
-void overlappedCompletionRoutine(
+void CALLBACK overlappedCompletionRoutine(
 	DWORD dwErrorCode,
 	DWORD dwNumberOfBytesTransfered,
 	OVERLAPPED* lpOverlapped
@@ -34,6 +34,7 @@ void overlappedCompletionRoutine(
 	{
 		// if doing a write, the user owns the buffer. Let them free it.
 		IO::freeAlignedBuffer(pCbStruct->xferBuffer);
+		pCbStruct->xferBuffer = NULL;
 	}
 
 	delete lpOverlapped->hEvent;
