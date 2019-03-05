@@ -37,11 +37,18 @@ public:
 			// if we didn't have a num, this loop should go around
 		}
 
-		throw std::runtime_error("Did not get a random number... somehow broke the loop");
+		//throw std::runtime_error("Did not get a random number... somehow broke the loop");
 		return 0;
 #else
 		return (T)mtGenerator();
 #endif
+	}
+
+	template <typename T> inline
+		T getRandomNumber(T start, T end)
+	{
+		auto r = getRandomNumber<uint64_t>();
+		return (T)(r % (end - start)) + start + 1;
 	}
 
 	// fill a buffer with random data

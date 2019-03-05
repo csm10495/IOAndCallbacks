@@ -117,11 +117,13 @@
   <ItemGroup>
     <ClInclude Include="io.h" />
     <ClInclude Include="iorand.h" />
+    <ClInclude Include="io_lba_generator.h" />
     <ClInclude Include="switches.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="io.cpp" />
     <ClCompile Include="iorand.cpp" />
+    <ClCompile Include="io_lba_generator.cpp" />
     <ClCompile Include="io_linux.cpp" />
     <ClCompile Include="io_win32.cpp" />
     <ClCompile Include="main.cpp" />

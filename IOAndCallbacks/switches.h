@@ -5,7 +5,7 @@
 
 // set to 1 to build a special exe to run tests
 #ifndef TEST_BUILD
-#define TEST_BUILD 1
+#define TEST_BUILD 0
 #endif // TEST_BUILD
 
 // set to 1 to enable the ability for the IO object to keep track of some stats

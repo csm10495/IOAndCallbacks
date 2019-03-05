@@ -40,7 +40,7 @@ class IO_CALLBACK_STRUCT
 public:
 	IO_CALLBACK_STRUCT()
 	{
-		memset(this, 0, sizeof(IO_CALLBACK_STRUCT));
+		//memset(this, 0, sizeof(IO_CALLBACK_STRUCT));
 	}
 
 	IO_CALLBACK_STRUCT(uint64_t lba, uint64_t blockcount, uint64_t bytesRequested,

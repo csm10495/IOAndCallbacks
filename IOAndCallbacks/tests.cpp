@@ -2,6 +2,7 @@
 // (C) - csm10495 - MIT License 2019
 
 #include "io.h"
+#include "io_lba_generator.h"
 #include "iorand.h"
 
 #include <cassert>
@@ -15,7 +16,7 @@
 #if TEST_BUILD
 
 #ifdef IO_WIN32
-#define TEST_PATH "\\\\.\\PHYSICALDRIVE3"
+#define TEST_PATH "\\\\.\\PHYSICALDRIVE0"
 #endif
 
 #ifdef IO_LINUX
@@ -171,6 +172,50 @@ void test_iorand()
 
 }
 
+void test_io_lba_generator()
+{
+	std::shared_ptr<IO> io(new IO(TEST_PATH));
+	for (uint64_t seed = 0; seed < 1000; seed+=50)
+	{
+		std::shared_ptr<IORand> ioRand(new IORand(seed));
+
+		uint64_t maxLba = 100;
+		uint64_t numBlocks = 4;
+		IOLBAGenerator ioLbaGenerator(io, ioRand, maxLba);
+
+		uint64_t numSeqGenerationsPossible = (uint64_t)floor(maxLba / (double)numBlocks);
+
+		for (uint64_t i = 0; i < numSeqGenerationsPossible; i++)
+		{
+			ASSERT(i * numBlocks == ioLbaGenerator.generateSequentialLba(numBlocks), "Sequential LBA not properly generated");
+		}
+
+		try
+		{
+			ioLbaGenerator.generateSequentialLba(numBlocks);
+			ASSERT(false, "runtime_error was not raised when sequential LBA could not be found");
+		}
+		catch (const std::runtime_error)
+		{
+			// if we get here, good
+		}
+
+		ioLbaGenerator.removeInUseLba(maxLba - numBlocks, numBlocks);
+		ASSERT(ioLbaGenerator.generateSequentialLba(numBlocks) == maxLba - numBlocks, "After removal, still couldn't find a max lba");
+
+		// remove half
+		ioLbaGenerator.removeInUseLba(maxLba / 2, maxLba / 2);
+
+		// get random lbas
+		uint64_t minRandomGenerationsPossible = (maxLba / 2) / numBlocks / 2;
+		for (uint64_t i = 0; i < minRandomGenerationsPossible; i++)
+		{
+			uint64_t lba = ioLbaGenerator.generateRandomLba(numBlocks);
+			ASSERT(lba >= maxLba / 2, "Random lba doesn't seem possible for given parameters");
+		}
+	}
+}
+
 int main()
 {
 	std::cout << "Running tests!" << std::endl;
@@ -182,6 +227,7 @@ int main()
 	RUN_TEST(test_write_then_read);
 	RUN_TEST(test_aligned_memory);
 	RUN_TEST(test_iorand);
+	RUN_TEST(test_io_lba_generator);
 
 	return EXIT_SUCCESS;
 }

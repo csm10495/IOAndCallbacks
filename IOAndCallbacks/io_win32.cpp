@@ -37,7 +37,10 @@ void overlappedCompletionRoutine(
 	}
 
 	delete lpOverlapped->hEvent;
+	lpOverlapped->hEvent = NULL;
+
 	delete lpOverlapped;
+	lpOverlapped = NULL;
 }
 
 IO::IO(std::string path)
