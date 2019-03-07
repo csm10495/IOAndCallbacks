@@ -59,6 +59,10 @@ IO::IO(std::string path)
 	{
 		perror("io_setup() failed");
 	}
+
+#if IO_DISABLE_WRITES_TO_DRIVE_WITH_PARTITIONS
+	checkAndSetIfWeShouldAllowWrites();
+#endif // IO_DISABLE_WRITES_TO_DRIVE_WITH_PARTITIONS
 }
 
 IO::~IO()

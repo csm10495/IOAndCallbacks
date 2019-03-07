@@ -41,9 +41,9 @@ int main()
 
 	/////////////////////////////	
 
-	for (auto i = 0; i < 1; i++)
+	for (auto i = 0; i < 8; i++)
 	{
-		//io->write(0, 256, data, testCallback, NULL);
+		io->write(0, 256, data, testCallback, NULL);
 		io->read(0, 8, testCallback, NULL);
 	}
 

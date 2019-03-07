@@ -5,7 +5,7 @@
 
 // set to 1 to build a special exe to run tests
 #ifndef TEST_BUILD
-#define TEST_BUILD 1
+#define TEST_BUILD 0
 #endif // TEST_BUILD
 
 // set to 1 to enable the ability for the IO object to keep track of some stats
@@ -18,6 +18,14 @@
 #ifndef IO_ENABLE_THREADED_RANDOM_GENERATOR
 #define IO_ENABLE_THREADED_RANDOM_GENERATOR 1
 #endif // IO_ENABLE_THREADED_RANDOM_GENERATOR
+
+// i have messed with data drives a couple times, its not fun.
+//  fail to queue any writes to a drive with a partition
+//    ... requires we check for it and block all writes at the queue phase.
+// note that IO_DISABLE_WRITES_TO_DRIVE_WITH_PARTITIONS is ignored if you call submitIo directly
+#ifndef IO_DISABLE_WRITES_TO_DRIVE_WITH_PARTITIONS
+#define IO_DISABLE_WRITES_TO_DRIVE_WITH_PARTITIONS 1
+#endif // IO_DISABLE_WRITES_TO_DRIVE_WITH_PARTITIONS
 
 #ifdef __linux__
 #define IO_LINUX 1

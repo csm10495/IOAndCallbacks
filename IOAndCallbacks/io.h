@@ -171,6 +171,14 @@ public:
 
 private:
 
+#if IO_DISABLE_WRITES_TO_DRIVE_WITH_PARTITIONS
+	// returns true if there appears to be a partition at the first part of the drive
+	void checkAndSetIfWeShouldAllowWrites();
+
+	// Set to true if we do not have a partition (and we're sure of it.)
+	bool allowWrites;
+#endif // #if IO_DISABLE_WRITES_TO_DRIVE_WITH_PARTITIONS
+
 	// called by submitIo(). This is OS specific.
 	bool doSubmitIo(IO_CALLBACK_STRUCT* ioCallbackStruct);
 
